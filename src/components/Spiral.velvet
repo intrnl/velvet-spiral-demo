@@ -34,11 +34,25 @@
 		cursors = next;
 	}
 
+	// The original demo had deferred updates, that really helps a lot because
+	// this event gets spammed a lot when you start moving.
+	const moved = { timeout: false, x: 0, y: 0 };
+
 	function handlePointerMove (ev) {
-		batch(() => {
-			x = ev.x;
-			y = ev.y;
-		});
+		moved.x = ev.x;
+		moved.y = ev.y;
+
+		if (!moved.timeout) {
+			moved.timeout = true;
+
+			requestAnimationFrame(() => (
+				batch(() => {
+					moved.timeout = false;
+					x = ev.x;
+					y = ev.y;
+				})
+			));
+		}
 	}
 
 	function handlePointerDown () {
